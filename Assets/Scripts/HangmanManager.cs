@@ -217,4 +217,11 @@ public class HangmanManager : MonoBehaviour
         livesRemaining = hangmanParts.Length;
         HideAllParts();
     }
+
+    // Добавляем метод SaveGameState
+    public void SaveGameState()
+    {
+        SavePlayerData();
+        Debug.Log("Game state saved.");
+    }
 }

@@ -1,0 +1,7 @@
+{
+	"currentScore": 10,
+	"currentTime": 120.5,
+	"currentWord": "example",
+	"guessedLetters": ["e", "x", "a", "m", "p", "l"],
+	"livesRemaining": 3
+}

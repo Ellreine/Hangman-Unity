@@ -3,11 +3,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
 
-[System.Serializable]
-public class WordList
-{
-    public List<string> words;
-}
 
 public class WordManager : MonoBehaviour
 {
