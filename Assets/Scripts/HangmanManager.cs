@@ -24,7 +24,6 @@ public class HangmanManager : MonoBehaviour
         gameOverPanel.SetActive(false); // Скрыть панель GameOver
     }
 
-    // Скрыть все части виселицы
     void HideAllParts()
     {
         foreach (GameObject part in hangmanParts)
@@ -33,7 +32,6 @@ public class HangmanManager : MonoBehaviour
         }
     }
 
-    // Потеря жизни
     public void LoseLife()
     {
         if (isGameOver) return;
@@ -74,7 +72,13 @@ public class HangmanManager : MonoBehaviour
         InitializeGame();
     }
 
-    // Проверка, есть ли оставшиеся жизни
+    public void ResetHangman()
+    {
+        isGameOver = false;
+        livesRemaining = hangmanParts.Length;
+        HideAllParts();
+    }
+
     public bool HasLivesRemaining()
     {
         return livesRemaining > 0;
