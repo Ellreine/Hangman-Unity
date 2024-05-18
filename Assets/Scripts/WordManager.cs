@@ -3,55 +3,37 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
 
+[System.Serializable]
+public class WordList
+{
+    public List<string> words;
+}
+
 public class WordManager : MonoBehaviour
 {
     public GameObject letterPrefab;  // Префаб буквы для слова
-    public GameObject letterGridPrefab;  // Префаб буквы для сетки
     public GameObject victoryPanel; // Панель победы
-    public GameObject gameOverPanel; // Панель проигрыша
     public Button nextWordButton; // Кнопка "следующее слово"
-    public string[] wordList = { "Борщ", "Суп", "Каша", "Кот", "Собака" };  // Массив слов
     public float spacing = 1f;  // Расстояние между буквами
     public Sprite[] letterSprites;  // Массив спрайтов букв
     public HangmanManager hangmanManager; // Ссылка на HangmanManager
-    public LeaderboardManager leaderboardManager; // Ссылка на LeaderboardManager
+    public CurrentScoreManager currentScoreManager; // Ссылка на CurrentScoreManager
 
     private Dictionary<char, Sprite> letterSpriteDict;  // Словарь спрайтов букв
     private HashSet<char> guessedLetters;  // Множество угаданных букв
     private List<GameObject> letterObjects = new List<GameObject>();  // Список объектов букв
     private string currentWord;  // Текущее загаданное слово
-    private PlayerData playerData;
-    private string filePath;
-    private float startTime;
+    private List<string> wordList;  // Список слов из JSON файла
 
     void Start()
     {
         guessedLetters = new HashSet<char>();
         InitializeLetterSprites();
+        LoadWordsFromJson();
         nextWordButton.onClick.AddListener(NextWord);
         victoryPanel.SetActive(false);
-        gameOverPanel.SetActive(false);
-
-        string playerName = PlayerPrefs.GetString("CurrentPlayerName", "Player1");
-        filePath = Path.Combine(Application.dataPath, "Resources/playerData.json");
-        playerData = LoadPlayerData(playerName);
-
-        if (playerData == null)
-        {
-            playerData = new PlayerData(playerName);
-        }
-
-        leaderboardManager = FindObjectOfType<LeaderboardManager>();
-        if (leaderboardManager == null)
-        {
-            Debug.LogError("LeaderboardManager не найден в сцене.");
-        }
-
-        leaderboardManager.UpdateLeaderboard();
-        startTime = Time.time;
         InitializeNewWord();
     }
-
 
     void InitializeLetterSprites()
     {
@@ -71,10 +53,26 @@ public class WordManager : MonoBehaviour
         }
     }
 
+    void LoadWordsFromJson()
+    {
+        string filePath = Path.Combine(Application.dataPath, "Resources", "words.json");
+        if (File.Exists(filePath))
+        {
+            string json = File.ReadAllText(filePath);
+            WordList wordListContainer = JsonUtility.FromJson<WordList>(json);
+            wordList = wordListContainer.words;
+        }
+        else
+        {
+            Debug.LogError("Words JSON file not found at path: " + filePath);
+            wordList = new List<string>();  // Создаем пустой список, чтобы избежать ошибок
+        }
+    }
+
     public void InitializeNewWord()
     {
         ClearPreviousWord();
-        currentWord = wordList[Random.Range(0, wordList.Length)];  // Выбираем случайное слово
+        currentWord = wordList[Random.Range(0, wordList.Count)];  // Выбираем случайное слово
         InitializeWord();
     }
 
@@ -99,7 +97,6 @@ public class WordManager : MonoBehaviour
             wordLetter.Initialize(letter, letterSpriteDict);
             nextPosition.x += spacing;  // Увеличиваем позицию для следующей буквы
             letterObjects.Add(letterObj);
-            Debug.Log("Added letter object: " + letterObj.name); // Добавляем отладочное сообщение
         }
     }
 
@@ -121,18 +118,15 @@ public class WordManager : MonoBehaviour
 
         if (letterFound)
         {
-            Debug.Log("Letter guessed: " + upperLetter);
             CheckWinCondition();
         }
         else
         {
-            Debug.Log("Letter not guessed: " + upperLetter);
             hangmanManager.LoseLife();
 
             if (!hangmanManager.HasLivesRemaining())
             {
-                Debug.Log("Game Over!");
-                OnGameOver();
+                hangmanManager.GameOver();
             }
         }
 
@@ -149,15 +143,9 @@ public class WordManager : MonoBehaviour
             }
         }
 
-        Debug.Log("Victory!");
-        playerData.currentScore++; // Увеличиваем текущий счет при угаданном слове
+        currentScoreManager.IncrementScore(1); // Увеличиваем текущий счет при угаданном слове
         ShowVictoryPanel();
-
-        // Обновить текущий счет игрока (но не bestScore) в лидерборде
-        leaderboardManager.UpdateCurrentPlayerScore(playerData.playerName, playerData.currentScore);
     }
-
-
 
     void ShowVictoryPanel()
     {
@@ -171,12 +159,8 @@ public class WordManager : MonoBehaviour
         ResetGridLetters();
         hangmanManager.ResetHangman(); // Сброс виселицы и жизней
 
-        // Обновляем текущий счет игрока, но не обновляем bestScore
-        leaderboardManager.UpdateCurrentPlayerScore(playerData.playerName, playerData.currentScore);
-
         victoryPanel.SetActive(false);
     }
-
 
     public void DisableAllLetters()
     {
@@ -199,29 +183,18 @@ public class WordManager : MonoBehaviour
 
     public void ResetAllLetters()
     {
-        Debug.Log("Resetting all letters.");
         foreach (GameObject letterObject in letterObjects)
         {
             LetterFeedback feedback = letterObject.GetComponent<LetterFeedback>();
             if (feedback != null)
             {
-                Debug.Log("Resetting feedback for letter: " + letterObject.name);
                 feedback.ResetFeedback(); // Сбросить состояние меток
-            }
-            else
-            {
-                Debug.LogError("LetterFeedback component not found on: " + letterObject.name);
             }
 
             LetterClickHandler clickHandler = letterObject.GetComponent<LetterClickHandler>();
             if (clickHandler != null)
             {
                 clickHandler.enabled = true;  // Включаем обработчик кликов
-                Debug.Log("Enabling click handler for letter: " + letterObject.name);
-            }
-            else
-            {
-                Debug.LogError("LetterClickHandler component not found on: " + letterObject.name);
             }
         }
 
@@ -239,7 +212,6 @@ public class WordManager : MonoBehaviour
             if (feedback != null)
             {
                 feedback.ResetFeedback();
-                Debug.Log("Resetting grid letter: " + clickHandler.gameObject.name);
             }
         }
     }
@@ -255,108 +227,5 @@ public class WordManager : MonoBehaviour
                 spriteRenderer.sprite = wordLetter.baseSprite; // Устанавливаем спрайт линии
             }
         }
-    }
-
-    void OnGameOver()
-    {
-        if (playerData == null)
-        {
-            Debug.LogError("playerData не инициализирован.");
-            return;
-        }
-
-        if (leaderboardManager == null)
-        {
-            Debug.LogError("leaderboardManager не инициализирован.");
-            return;
-        }
-
-        playerData.currentTime = Time.time - startTime;
-
-        bool isNewBest = false;
-        // Обновляем bestScore и bestTime только если текущий счет и время лучше
-        if (playerData.currentScore > playerData.bestScore ||
-            (playerData.currentScore == playerData.bestScore && playerData.currentTime < playerData.bestTime))
-        {
-            playerData.bestScore = playerData.currentScore;
-            playerData.bestTime = playerData.currentTime;
-            isNewBest = true;
-        }
-
-        SavePlayerData(playerData);
-
-        if (isNewBest)
-        {
-            leaderboardManager.UpdateBestScore(playerData.playerName, playerData.bestScore, playerData.bestTime);
-        }
-        else
-        {
-            leaderboardManager.UpdateLeaderboard();
-        }
-
-        // Сброс текущего счета и времени
-        playerData.currentScore = 0;
-        playerData.currentTime = 0;
-        startTime = Time.time;
-    }
-
-
-
-
-
-
-    void SavePlayerData(PlayerData playerData)
-    {
-        List<PlayerData> allPlayers = new List<PlayerData>();
-        if (File.Exists(filePath))
-        {
-            string json = File.ReadAllText(filePath);
-            PlayerDataList playerDataList = JsonUtility.FromJson<PlayerDataList>(json);
-            if (playerDataList != null)
-            {
-                allPlayers = new List<PlayerData>(playerDataList.players);
-            }
-        }
-
-        bool playerFound = false;
-        for (int i = 0; i < allPlayers.Count; i++)
-        {
-            if (allPlayers[i].playerName == playerData.playerName)
-            {
-                allPlayers[i] = playerData;
-                playerFound = true;
-                break;
-            }
-        }
-
-        if (!playerFound)
-        {
-            allPlayers.Add(playerData);
-        }
-
-        PlayerDataList updatedPlayerDataList = new PlayerDataList { players = allPlayers.ToArray() };
-        string updatedJson = JsonUtility.ToJson(updatedPlayerDataList);
-        File.WriteAllText(filePath, updatedJson);
-    }
-
-
-    PlayerData LoadPlayerData(string playerName)
-    {
-        if (File.Exists(filePath))
-        {
-            string json = File.ReadAllText(filePath);
-            PlayerDataList playerDataList = JsonUtility.FromJson<PlayerDataList>(json);
-            if (playerDataList != null)
-            {
-                foreach (var player in playerDataList.players)
-                {
-                    if (player.playerName == playerName)
-                    {
-                        return player;
-                    }
-                }
-            }
-        }
-        return null;
     }
 }

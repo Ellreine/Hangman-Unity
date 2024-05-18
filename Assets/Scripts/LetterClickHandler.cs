@@ -34,7 +34,6 @@ public class LetterClickHandler : MonoBehaviour
         {
             onLetterClick.Invoke(letter, gameObject);
             enabled = false;  // Отключаем обработчик кликов после первого нажатия
-            Debug.Log("Click handler disabled for letter: " + gameObject.name);
         }
     }
 

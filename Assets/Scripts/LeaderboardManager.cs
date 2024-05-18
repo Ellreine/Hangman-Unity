@@ -8,6 +8,7 @@ public class LeaderboardManager : MonoBehaviour
 {
     public GameObject playerScorePrefab; // Префаб для отображения очков игрока
     public Transform leaderboardContent; // Контент, куда будут добавляться очки игроков
+    public Text currentScoreText; // Текст для отображения текущего счета
     private string filePath;
 
     private List<PlayerScore> playerScores = new List<PlayerScore>();
@@ -17,6 +18,7 @@ public class LeaderboardManager : MonoBehaviour
         filePath = Path.Combine(Application.dataPath, "Resources/playerData.json");
         LoadPlayerScores();
         UpdateLeaderboard(); // Обновить таблицу лидеров при старте
+        UpdateCurrentScore();
     }
 
     void LoadPlayerScores()
@@ -55,6 +57,7 @@ public class LeaderboardManager : MonoBehaviour
             playerScores.Add(new PlayerScore(playerName, score, time));
         }
         UpdateLeaderboard();
+        UpdateCurrentScore();
     }
 
     public void UpdateLeaderboard()
@@ -73,17 +76,9 @@ public class LeaderboardManager : MonoBehaviour
         {
             AddPlayerScoreToUI(sortedScores[i]);
         }
-
-        // Если текущий игрок не в топ-3, добавьте его в список
-        string currentPlayerName = PlayerPrefs.GetString("CurrentPlayerName");
-        var currentPlayerScore = playerScores.FirstOrDefault(p => p.playerName == currentPlayerName);
-        if (currentPlayerScore != null && !sortedScores.Take(3).Contains(currentPlayerScore))
-        {
-            AddPlayerScoreToUI(currentPlayerScore, true);
-        }
     }
 
-    void AddPlayerScoreToUI(PlayerScore playerScore, bool isCurrentPlayer = false)
+    void AddPlayerScoreToUI(PlayerScore playerScore)
     {
         GameObject playerScoreObj = Instantiate(playerScorePrefab, leaderboardContent);
 
@@ -101,35 +96,6 @@ public class LeaderboardManager : MonoBehaviour
         playerNameText.text = playerScore.playerName;
         scoreText.text = playerScore.score.ToString();
         timeText.text = playerScore.time.ToString("F2") + "s";
-
-        if (isCurrentPlayer)
-        {
-            Image playerScoreImage = playerScoreObj.GetComponent<Image>();
-            if (playerScoreImage != null)
-            {
-                playerScoreImage.color = Color.yellow; // Измените цвет для текущего игрока
-            }
-            else
-            {
-                Debug.LogError("Компонент Image не найден на префабе PlayerScorePrefab.");
-            }
-        }
-    }
-
-    public void UpdateBestScore(string playerName, int bestScore, float bestTime)
-    {
-        var player = playerScores.FirstOrDefault(p => p.playerName == playerName);
-        if (player != null)
-        {
-            player.score = bestScore;
-            player.time = bestTime;
-        }
-        else
-        {
-            playerScores.Add(new PlayerScore(playerName, bestScore, bestTime));
-        }
-        SavePlayerScores();
-        UpdateLeaderboard();
     }
 
     public void UpdateCurrentPlayerScore(string playerName, int currentScore)
@@ -145,52 +111,33 @@ public class LeaderboardManager : MonoBehaviour
             playerScores.Add(new PlayerScore(playerName, currentScore, 0f));
         }
         UpdateLeaderboard();
+        UpdateCurrentScore();
     }
 
-    void SavePlayerScores()
+    void UpdateCurrentScore()
     {
-        PlayerDataList playerDataList = new PlayerDataList();
-        playerDataList.players = playerScores.Select(ps => new PlayerData(ps.playerName)
-        {
-            bestScore = ps.score,
-            bestTime = ps.time
-        }).ToArray();
+        string currentPlayerName = PlayerPrefs.GetString("CurrentPlayerName");
+        var currentPlayerScore = playerScores.FirstOrDefault(p => p.playerName == currentPlayerName);
 
-        string json = JsonUtility.ToJson(playerDataList);
-        File.WriteAllText(filePath, json);
+        if (currentPlayerScore != null)
+        {
+            currentScoreText.text = "Current Score: " + currentPlayerScore.score;
+        }
     }
 
-    void SavePlayerData(PlayerData playerData)
+
+    public void UpdateBestScore(string playerName, int bestScore, float bestTime)
     {
-        List<PlayerData> allPlayers = new List<PlayerData>();
-        if (File.Exists(filePath))
+        var player = playerScores.FirstOrDefault(p => p.playerName == playerName);
+        if (player != null)
         {
-            string json = File.ReadAllText(filePath);
-            PlayerDataList playerDataList = JsonUtility.FromJson<PlayerDataList>(json);
-            if (playerDataList != null)
-            {
-                allPlayers = new List<PlayerData>(playerDataList.players);
-            }
+            player.score = bestScore;
+            player.time = bestTime;
         }
-
-        bool playerFound = false;
-        for (int i = 0; i < allPlayers.Count; i++)
+        else
         {
-            if (allPlayers[i].playerName == playerData.playerName)
-            {
-                allPlayers[i] = playerData;
-                playerFound = true;
-                break;
-            }
+            playerScores.Add(new PlayerScore(playerName, bestScore, bestTime));
         }
-
-        if (!playerFound)
-        {
-            allPlayers.Add(playerData);
-        }
-
-        PlayerDataList updatedPlayerDataList = new PlayerDataList { players = allPlayers.ToArray() };
-        string updatedJson = JsonUtility.ToJson(updatedPlayerDataList);
-        File.WriteAllText(filePath, updatedJson);
+        UpdateLeaderboard();
     }
 }

@@ -15,4 +15,10 @@ public class PlayerData
         this.currentScore = 0;
         this.currentTime = 0f;
     }
+
+    public void ResetCurrentScore()
+    {
+        this.currentScore = 0;
+        this.currentTime = 0f;
+    }
 }
