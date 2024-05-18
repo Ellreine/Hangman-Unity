@@ -1,4 +1,3 @@
-// WordLetter.cs
 using UnityEngine;
 using System.Collections.Generic;
 

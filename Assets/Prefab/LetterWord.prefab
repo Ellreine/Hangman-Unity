@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 5610968152418398674}
   - component: {fileID: 8069169037307466940}
   - component: {fileID: 713270246485153869}
+  - component: {fileID: 1752426697784039672}
+  - component: {fileID: 2271645076668588750}
   m_Layer: 0
   m_Name: LetterWord
   m_TagString: Untagged
@@ -26,7 +28,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7709862073725364335}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.72, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -101,3 +103,33 @@ MonoBehaviour:
   baseSprite: {fileID: 21300000, guid: dac827bdce8bbbc43bcb3dc36ab145cd, type: 3}
   letterSprite: {fileID: 0}
   letter: 17
+--- !u!114 &1752426697784039672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7709862073725364335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7771a66e53672c74894c0da966ff6f4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  correctMark: {fileID: 0}
+  incorrectMark: {fileID: 0}
+--- !u!114 &2271645076668588750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7709862073725364335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c73172fdd4ec242a5d2cffd1c73e7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  letter: 
+  onLetterClick:
+    m_PersistentCalls:
+      m_Calls: []

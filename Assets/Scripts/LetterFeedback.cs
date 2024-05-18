@@ -1,4 +1,3 @@
-// LetterFeedback.cs
 using UnityEngine;
 
 public class LetterFeedback : MonoBehaviour
@@ -8,8 +7,7 @@ public class LetterFeedback : MonoBehaviour
 
     void Start()
     {
-        correctMark.SetActive(false);  // Изначально скрываем галочку
-        incorrectMark.SetActive(false);  // Изначально скрываем крестик
+        HideAllMarks();  // Изначально скрываем метки
     }
 
     // Метод для отображения галочки
@@ -22,5 +20,21 @@ public class LetterFeedback : MonoBehaviour
     public void ShowIncorrect()
     {
         incorrectMark.SetActive(true);
+    }
+
+    // Метод для скрытия всех меток
+    public void HideAllMarks()
+    {
+        if (correctMark != null)
+            correctMark.SetActive(false);
+        if (incorrectMark != null)
+            incorrectMark.SetActive(false);
+    }
+
+    // Метод для сброса состояния
+    public void ResetFeedback()
+    {
+        Debug.Log("Resetting feedback for: " + gameObject.name); // Добавить отладочное сообщение
+        HideAllMarks();
     }
 }

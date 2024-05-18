@@ -1,4 +1,3 @@
-// LetterClickHandler.cs
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -25,9 +24,17 @@ public class LetterClickHandler : MonoBehaviour
 
     void OnMouseDown()
     {
-        if (onLetterClick != null)
+        HangmanManager hangmanManager = FindObjectOfType<HangmanManager>();
+        if (hangmanManager != null && hangmanManager.IsGameOver())
+        {
+            return; // Если игра окончена, ничего не делаем
+        }
+
+        if (onLetterClick != null && enabled)
         {
             onLetterClick.Invoke(letter, gameObject);
+            enabled = false;  // Отключаем обработчик кликов после первого нажатия
+            Debug.Log("Click handler disabled for letter: " + gameObject.name);
         }
     }
 
