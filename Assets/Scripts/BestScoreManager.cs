@@ -12,14 +12,13 @@ public class BestScoreManager : MonoBehaviour
 
     void Start()
     {
-        filePath = Path.Combine(Application.dataPath, "Resources", "playerData.json");
-        Debug.Log("Player data file path: " + filePath); // Вывод пути к файлу в консоль для проверки
+        filePath = Path.Combine(Application.dataPath, "playerData.json");
+        Debug.Log("Player data file path: " + filePath);
         LoadBestScores();
     }
 
     public void LoadBestScores()
     {
-        // Очистить текущий список
         foreach (Transform child in leaderboardContent)
         {
             Destroy(child.gameObject);
@@ -28,7 +27,6 @@ public class BestScoreManager : MonoBehaviour
         PlayerDataList playerDataList = LoadPlayerDataList();
         if (playerDataList != null)
         {
-            // Сортируем игроков по лучшему счету в порядке убывания и берем топ-3
             var topPlayers = playerDataList.players
                 .OrderByDescending(p => p.bestScore)
                 .ThenBy(p => p.bestTime)

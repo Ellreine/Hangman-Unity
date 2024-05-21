@@ -13,7 +13,7 @@ public class CurrentScoreManager : MonoBehaviour
     void Start()
     {
         playerName = PlayerPrefs.GetString("CurrentPlayerName", "Player1");
-        filePath = Path.Combine(Application.dataPath, "Resources", "playerData.json");
+        filePath = Path.Combine(Application.dataPath, "playerData.json");
         playerData = LoadPlayerData(playerName);
 
         if (playerData == null)
@@ -22,7 +22,7 @@ public class CurrentScoreManager : MonoBehaviour
             SavePlayerData();
         }
 
-        playerData.ResetCurrentScore(); // —брос текущего счета при загрузке
+        playerData.ResetCurrentScore();
         UpdateCurrentScoreUI();
     }
 
@@ -98,9 +98,6 @@ public class CurrentScoreManager : MonoBehaviour
         string updatedJson = JsonUtility.ToJson(updatedPlayerDataList);
         File.WriteAllText(filePath, updatedJson);
     }
-
-  
-
 
     PlayerDataList LoadPlayerDataList()
     {

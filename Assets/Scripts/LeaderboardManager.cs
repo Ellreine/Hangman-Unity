@@ -6,18 +6,18 @@ using System.IO;
 
 public class LeaderboardManager : MonoBehaviour
 {
-    public GameObject playerScorePrefab; // Префаб для отображения очков игрока
-    public Transform leaderboardContent; // Контент, куда будут добавляться очки игроков
-    public Text currentScoreText; // Текст для отображения текущего счета
+    public GameObject playerScorePrefab;
+    public Transform leaderboardContent;
+    public Text currentScoreText;
     private string filePath;
 
     private List<PlayerScore> playerScores = new List<PlayerScore>();
 
     void Start()
     {
-        filePath = Path.Combine(Application.dataPath, "Resources/playerData.json");
+        filePath = Path.Combine(Application.dataPath, "playerData.json");
         LoadPlayerScores();
-        UpdateLeaderboard(); // Обновить таблицу лидеров при старте
+        UpdateLeaderboard();
         UpdateCurrentScore();
     }
 
@@ -62,16 +62,13 @@ public class LeaderboardManager : MonoBehaviour
 
     public void UpdateLeaderboard()
     {
-        // Очистить текущий список
         foreach (Transform child in leaderboardContent)
         {
             Destroy(child.gameObject);
         }
 
-        // Сортировать список по очкам и времени
         var sortedScores = playerScores.OrderByDescending(p => p.score).ThenBy(p => p.time).ToList();
 
-        // Обновить таблицу лидеров
         for (int i = 0; i < Mathf.Min(3, sortedScores.Count); i++)
         {
             AddPlayerScoreToUI(sortedScores[i]);
@@ -82,7 +79,6 @@ public class LeaderboardManager : MonoBehaviour
     {
         GameObject playerScoreObj = Instantiate(playerScorePrefab, leaderboardContent);
 
-        // Проверка и инициализация компонентов
         Text playerNameText = playerScoreObj.transform.Find("PlayerName").GetComponent<Text>();
         Text scoreText = playerScoreObj.transform.Find("Score").GetComponent<Text>();
         Text timeText = playerScoreObj.transform.Find("Time").GetComponent<Text>();
@@ -103,7 +99,6 @@ public class LeaderboardManager : MonoBehaviour
         var player = playerScores.FirstOrDefault(p => p.playerName == playerName);
         if (player != null)
         {
-            // Обновляем только текущий счет, не трогаем лучший счет
             player.score = currentScore;
         }
         else
@@ -124,7 +119,6 @@ public class LeaderboardManager : MonoBehaviour
             currentScoreText.text = "Current Score: " + currentPlayerScore.score;
         }
     }
-
 
     public void UpdateBestScore(string playerName, int bestScore, float bestTime)
     {

@@ -6,26 +6,26 @@ using System.Collections.Generic;
 
 public class HangmanManager : MonoBehaviour
 {
-    public CurrentScoreManager currentScoreManager; // Ссылка на менеджер текущего счета
-    public BestScoreManager bestScoreManager; // Ссылка на менеджер таблицы лидеров
-    public GameObject[] hangmanParts; // Массив частей виселицы
-    public GameObject gameOverPanel; // Ссылка на панель GameOver
-    public Button restartButton; // Ссылка на кнопку Restart
-    public Text timerText; // Ссылка на текст таймера
+    public CurrentScoreManager currentScoreManager;
+    public BestScoreManager bestScoreManager;
+    public GameObject[] hangmanParts;
+    public GameObject gameOverPanel;
+    public Button restartButton;
+    public Text timerText;
 
     private int livesRemaining;
     private bool isGameOver;
     private PlayerData playerData;
     private string playerName;
     private string filePath;
-    private float gameTime; // Время игры
+    private float gameTime;
     private bool isTimerRunning;
 
     void Start()
     {
         restartButton.onClick.AddListener(RestartGame);
         playerName = PlayerPrefs.GetString("CurrentPlayerName", "Player1");
-        filePath = Path.Combine(Application.dataPath, "Resources", "playerData.json");
+        filePath = Path.Combine(Application.dataPath, "playerData.json");
         playerData = LoadPlayerData(playerName);
 
         if (playerData == null)
@@ -52,10 +52,10 @@ public class HangmanManager : MonoBehaviour
         livesRemaining = hangmanParts.Length;
         HideAllParts();
         gameOverPanel.SetActive(false);
-        currentScoreManager.ResetScore(); // Сброс текущего счета
-        bestScoreManager.LoadBestScores(); // Обновить таблицу лидеров
-        gameTime = 0f; // Сброс времени игры
-        isTimerRunning = true; // Запуск таймера
+        currentScoreManager.ResetScore();
+        bestScoreManager.LoadBestScores();
+        gameTime = 0f;
+        isTimerRunning = true;
     }
 
     void HideAllParts()
@@ -91,16 +91,15 @@ public class HangmanManager : MonoBehaviour
     public void GameOver()
     {
         isGameOver = true;
-        isTimerRunning = false; // Остановка таймера
-        playerData.currentTime = gameTime; // Установка текущего времени
+        isTimerRunning = false;
+        playerData.currentTime = gameTime;
         gameOverPanel.SetActive(true);
         WordManager wordManager = FindObjectOfType<WordManager>();
         if (wordManager != null)
         {
-            wordManager.DisableAllLetters(); // Заблокировать нажатия на буквы
+            wordManager.DisableAllLetters();
         }
 
-        // Проверяем и обновляем данные игрока
         UpdatePlayerDataIfNeeded();
     }
 
@@ -111,9 +110,9 @@ public class HangmanManager : MonoBehaviour
         WordManager wordManager = FindObjectOfType<WordManager>();
         if (wordManager != null)
         {
-            wordManager.ResetAllLetters(); // Сбросить состояния всех букв
-            wordManager.ResetLetterSprites(); // Сбросить спрайты букв
-            wordManager.InitializeNewWord(); // Начать новую игру
+            wordManager.ResetAllLetters();
+            wordManager.ResetLetterSprites();
+            wordManager.InitializeNewWord();
         }
 
         InitializeGame();
@@ -127,7 +126,7 @@ public class HangmanManager : MonoBehaviour
         {
             playerData.bestScore = currentScore;
             playerData.bestTime = currentTime;
-            SavePlayerData(); // Обновляем данные в JSON файле
+            SavePlayerData();
             Debug.Log("Player data updated in JSON file.");
         }
         else
@@ -145,7 +144,7 @@ public class HangmanManager : MonoBehaviour
             {
                 if (player.playerName == playerName)
                 {
-                    player.ResetCurrentScore(); // Сброс текущего счета при загрузке
+                    player.ResetCurrentScore();
                     return player;
                 }
             }
@@ -218,7 +217,6 @@ public class HangmanManager : MonoBehaviour
         HideAllParts();
     }
 
-    // Добавляем метод SaveGameState
     public void SaveGameState()
     {
         SavePlayerData();

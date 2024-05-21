@@ -13,8 +13,7 @@ public class MainMenu : MonoBehaviour
         newGameButton.onClick.AddListener(StartNewGame);
         resumeButton.onClick.AddListener(ResumeGame);
 
-        // Деактивируем кнопку Resume, если сохраненная игра не найдена
-        string filePath = Path.Combine(Application.dataPath, "Resources", "gameState.json");
+        string filePath = Path.Combine(Application.dataPath, "gameState.json");
         if (!File.Exists(filePath))
         {
             resumeButton.interactable = false;
@@ -23,11 +22,11 @@ public class MainMenu : MonoBehaviour
 
     public void StartNewGame()
     {
-        SceneManager.LoadScene("GameScene"); // Замените "GameScene" на название вашей игровой сцены
+        SceneManager.LoadScene("GameScene");
     }
 
     public void ResumeGame()
     {
-        SceneManager.LoadScene("GameScene"); // Замените "GameScene" на название вашей игровой сцены
+        SceneManager.LoadScene("GameScene");
     }
 }

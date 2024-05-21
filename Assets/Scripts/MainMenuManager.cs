@@ -12,8 +12,8 @@ public class MainMenuManager : MonoBehaviour
 
     void Start()
     {
-        filePath = Path.Combine(Application.dataPath, "Resources/playerData.json");
-        Debug.Log("Player data file path: " + filePath); // Вывод пути к файлу в консоль
+        filePath = Path.Combine(Application.dataPath, "playerData.json");
+        Debug.Log("Player data file path: " + filePath);
         playButton.onClick.AddListener(OnPlayButtonClicked);
     }
 
@@ -29,10 +29,9 @@ public class MainMenuManager : MonoBehaviour
                 SavePlayerData(playerData);
             }
             PlayerPrefs.SetString("CurrentPlayerName", playerName);
-            SceneManager.LoadScene("GameScene"); // Замените "GameScene" на название вашей основной сцены
+            SceneManager.LoadScene("GameScene");
         }
     }
-
 
     void SavePlayerData(PlayerData playerData)
     {

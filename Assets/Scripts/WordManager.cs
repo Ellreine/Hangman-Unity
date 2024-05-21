@@ -1,24 +1,24 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
-
 
 public class WordManager : MonoBehaviour
 {
-    public GameObject letterPrefab;  // Префаб буквы для слова
-    public GameObject victoryPanel; // Панель победы
-    public Button nextWordButton; // Кнопка "следующее слово"
-    public float spacing = 1f;  // Расстояние между буквами
-    public Sprite[] letterSprites;  // Массив спрайтов букв
-    public HangmanManager hangmanManager; // Ссылка на HangmanManager
-    public CurrentScoreManager currentScoreManager; // Ссылка на CurrentScoreManager
+    public GameObject letterPrefab;
+    public GameObject victoryPanel;
+    public Button nextWordButton;
+    public float spacing = 1f;
+    public Sprite[] letterSprites;
+    public HangmanManager hangmanManager;
+    public CurrentScoreManager currentScoreManager;
 
-    private Dictionary<char, Sprite> letterSpriteDict;  // Словарь спрайтов букв
-    private HashSet<char> guessedLetters;  // Множество угаданных букв
-    private List<GameObject> letterObjects = new List<GameObject>();  // Список объектов букв
-    private string currentWord;  // Текущее загаданное слово
-    private List<string> wordList;  // Список слов из JSON файла
+    private Dictionary<char, Sprite> letterSpriteDict;
+    private HashSet<char> guessedLetters;
+    private List<GameObject> letterObjects = new List<GameObject>();
+    private string currentWord;
+    private List<string> wordList;
 
     void Start()
     {
@@ -50,7 +50,7 @@ public class WordManager : MonoBehaviour
 
     void LoadWordsFromJson()
     {
-        string filePath = Path.Combine(Application.dataPath, "Resources", "words.json");
+        string filePath = Path.Combine(Application.dataPath, "words.json");
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
@@ -60,14 +60,14 @@ public class WordManager : MonoBehaviour
         else
         {
             Debug.LogError("Words JSON file not found at path: " + filePath);
-            wordList = new List<string>();  // Создаем пустой список, чтобы избежать ошибок
+            wordList = new List<string>();
         }
     }
 
     public void InitializeNewWord()
     {
         ClearPreviousWord();
-        currentWord = wordList[Random.Range(0, wordList.Count)];  // Выбираем случайное слово
+        currentWord = wordList[Random.Range(0, wordList.Count)];
         InitializeWord();
     }
 
@@ -83,21 +83,21 @@ public class WordManager : MonoBehaviour
 
     void InitializeWord()
     {
-        Vector3 nextPosition = transform.position;  // Начальная позиция для первой буквы
+        Vector3 nextPosition = transform.position;
 
         foreach (char letter in currentWord)
         {
             GameObject letterObj = Instantiate(letterPrefab, nextPosition, Quaternion.identity, transform);
             WordLetter wordLetter = letterObj.GetComponent<WordLetter>();
             wordLetter.Initialize(letter, letterSpriteDict);
-            nextPosition.x += spacing;  // Увеличиваем позицию для следующей буквы
+            nextPosition.x += spacing;
             letterObjects.Add(letterObj);
         }
     }
 
     public bool CheckLetter(string letter)
     {
-        char upperLetter = char.ToUpper(letter[0]); // Приведение к верхнему регистру
+        char upperLetter = char.ToUpper(letter[0]);
         bool letterFound = false;
 
         foreach (Transform child in transform)
@@ -134,11 +134,11 @@ public class WordManager : MonoBehaviour
         {
             if (!guessedLetters.Contains(char.ToUpper(letter)))
             {
-                return; // Если есть неугаданные буквы, выход из метода
+                return;
             }
         }
 
-        currentScoreManager.IncrementScore(1); // Увеличиваем текущий счет при угаданном слове
+        currentScoreManager.IncrementScore(1);
         ShowVictoryPanel();
     }
 
@@ -152,7 +152,7 @@ public class WordManager : MonoBehaviour
     {
         InitializeNewWord();
         ResetGridLetters();
-        hangmanManager.ResetHangman(); // Сброс виселицы и жизней
+        hangmanManager.ResetHangman();
 
         victoryPanel.SetActive(false);
     }
@@ -164,11 +164,10 @@ public class WordManager : MonoBehaviour
             LetterClickHandler clickHandler = letterObject.GetComponent<LetterClickHandler>();
             if (clickHandler != null)
             {
-                clickHandler.enabled = false;  // Отключаем обработчик кликов
+                clickHandler.enabled = false;
             }
         }
 
-        // Отключение букв в сетке
         LetterClickHandler[] gridLetters = FindObjectsOfType<LetterClickHandler>();
         foreach (LetterClickHandler clickHandler in gridLetters)
         {
@@ -183,17 +182,16 @@ public class WordManager : MonoBehaviour
             LetterFeedback feedback = letterObject.GetComponent<LetterFeedback>();
             if (feedback != null)
             {
-                feedback.ResetFeedback(); // Сбросить состояние меток
+                feedback.ResetFeedback();
             }
 
             LetterClickHandler clickHandler = letterObject.GetComponent<LetterClickHandler>();
             if (clickHandler != null)
             {
-                clickHandler.enabled = true;  // Включаем обработчик кликов
+                clickHandler.enabled = true;
             }
         }
 
-        // Обновление букв в сетке
         ResetGridLetters();
     }
 
@@ -219,7 +217,7 @@ public class WordManager : MonoBehaviour
             WordLetter wordLetter = letterObject.GetComponent<WordLetter>();
             if (spriteRenderer != null && wordLetter != null)
             {
-                spriteRenderer.sprite = wordLetter.baseSprite; // Устанавливаем спрайт линии
+                spriteRenderer.sprite = wordLetter.baseSprite;
             }
         }
     }
